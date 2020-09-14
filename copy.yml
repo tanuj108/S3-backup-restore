@@ -1,0 +1,36 @@
+#!/usr/bin/ansible-playbook
+ - name: Fetch the latest backup filename from S3 Bucket.
+   hosts: localhost
+   gather_facts: no
+   become: yes
+   vars_file: variables.yml
+   tasks:
+    - name: Identify the latest file in the postgres backup directory on S3
+      shell: |
+         aws s3 ls {{filePathInBucket}} --recursive | sort | tail -1 | awk '{print $4}'
+      register: location
+
+    - name: Store filename in a variable
+      set_fact:
+       fname: "{{location.stdout}}"
+
+    - debug: var=fname
+
+ - name: GET the file from S3 bucket into restore server
+   hosts: restore_server
+   gather_facts: no
+   become: yes
+   vars_file: variables.yml
+   tasks:
+    - name: Fetch the latest postgres backup filename
+      set_fact:
+       loc: "{{hostvars['localhost']['fname']}}"
+
+    - name: GET the file from S3 bucket
+      aws_s3:
+       aws_access_key: "{{access_key}}"
+       aws_secret_key: "{{secret_key}}"
+       bucket: "{{bucketName}}"
+       object: "{{loc}}"
+       dest: "{{destPath}}"
+       mode: get
