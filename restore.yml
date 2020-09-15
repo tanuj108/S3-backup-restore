@@ -5,4 +5,4 @@
    gather_facts: no
    tasks:
    - name: Restore the Postgres Database by running restore.sh script
-     shell: "{{ restoreScript }}" 
+     shell: "{{ restorescript }}" 
