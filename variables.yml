@@ -1,8 +1,8 @@
 ---
-bucketName:
-filePathInBucket:
-destPath:
+bucketname:
+filepathinbucket:
+destpath:
 access_key: 
 secret_key: 
-copiedFilePath:
-restoreScript:
+copiedfilepath:
+restorescript:
