@@ -6,7 +6,7 @@
    tasks:
    - name: Extract the backup file
      shell: |
-        cd {{ copiedFilePath }}
+        cd {{ copiedfilepath }}
         ls -rt | tail -1
      register: fname
    - name: Store filename in a variable
