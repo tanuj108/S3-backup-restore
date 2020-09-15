@@ -40,5 +40,5 @@
        aws_secret_key: "{{secret_key}}"
        bucket: "{{bucketName}}"
        object: "{{objectname}}"
-       dest: {{destPath}}/{{filename}}
+       dest: {{ destPath }}/{{filename}}
        mode: get
