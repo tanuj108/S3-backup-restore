@@ -7,12 +7,12 @@
    tasks:
     - name: Identify the latest object in the postgres backup directory in S3
       shell: |
-         aws s3 ls s3://tanuj108demo/ansible-backup-restore --recursive | sort | tail -1 | awk '{print $4}'
+         aws s3 ls {{filepathinbucket}} --recursive | sort | tail -1 | awk '{print $4}'
       register: s3object
 
     - name: Identify the filename in the postgres backup directory in S3
       shell: |
-         aws s3 ls s3://tanuj108demo/ansible-backup-restore --recursive | sort | tail -1 | awk '{split($4,a,"/"); print a[2]}'
+         aws s3 ls {{filepathinbucket}} --recursive | sort | tail -1 | awk '{split($4,a,"/"); print a[2]}'
       register: s3filename
 
     - name: Store objectname and filename in variables
@@ -38,7 +38,7 @@
       aws_s3:
        aws_access_key: "{{access_key}}"
        aws_secret_key: "{{secret_key}}"
-       bucket: "{{bucketName}}"
+       bucket: "{{bucketname}}"
        object: "{{objectname}}"
-       dest: "{{destPath}}{{filename}}"
+       dest: "{{destpath}}{{filename}}"
        mode: get
