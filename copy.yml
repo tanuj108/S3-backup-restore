@@ -5,16 +5,23 @@
    become: yes
    vars_file: variables.yml
    tasks:
-    - name: Identify the latest file in the postgres backup directory on S3
+    - name: Identify the latest object in the postgres backup directory in S3
       shell: |
-         aws s3 ls {{filePathInBucket}} --recursive | sort | tail -1 | awk '{print $4}'
-      register: location
+         aws s3 ls s3://tanuj108demo/ansible-backup-restore --recursive | sort | tail -1 | awk '{print $4}'
+      register: s3object
 
-    - name: Store filename in a variable
+    - name: Identify the filename in the postgres backup directory in S3
+      shell: |
+         aws s3 ls s3://tanuj108demo/ansible-backup-restore --recursive | sort | tail -1 | awk '{split($4,a,"/"); print a[2]}'
+      register: s3filename
+
+    - name: Store objectname and filename in variables
       set_fact:
-       fname: "{{location.stdout}}"
+       oname: "{{s3object.stdout}}"
+       fname: "{{s3filename.stdout}}"
 
-    - debug: var=fname
+    - debug:
+         msg: "objectname is {{oname}} and filename is {{fname}}"
 
  - name: GET the file from S3 bucket into restore server
    hosts: restore_server
@@ -24,13 +31,14 @@
    tasks:
     - name: Fetch the latest postgres backup filename
       set_fact:
-       loc: "{{hostvars['localhost']['fname']}}"
-
+       objectname: "{{hostvars['localhost']['oname']}}"
+       filename: "{{hostvars['localhost']['fname']}}"
+       
     - name: GET the file from S3 bucket
       aws_s3:
        aws_access_key: "{{access_key}}"
        aws_secret_key: "{{secret_key}}"
        bucket: "{{bucketName}}"
-       object: "{{loc}}"
-       dest: "{{destPath}}"
+       object: "{{objectname}}"
+       dest: {{destPath}}/{{filename}}
        mode: get
